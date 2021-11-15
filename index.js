@@ -6,7 +6,8 @@ const url = 'mongodb://localhost:27017/nucampsite';
 const connect = mongoose.connect(url, {
     useCreateIndex: true,
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    useFindAndModify: false
 });
 
 connect
@@ -19,10 +20,26 @@ connect
         })
             .then(campsite => {
                 console.log(campsite);
-                return Campsite.find();
+                
+                return Campsite.findByIdAndUpdate(campsite._id, {
+                    $set: { description: 'Updated Test Document' }
+                }, {
+                    new: true
+                });
             })
-            .then(campsites => {
-                console.log(campsites);
+            .then(campsite => {
+                console.log(campsite);
+
+                campsite.comments.push({
+                    rating: 5,
+                    text: 'What a magnificent view!',
+                    author: 'Tony Stark'
+                });
+
+                return campsite.save();
+            })
+            .then(campsite => {
+                console.log(campsite);
                 return Campsite.deleteMany();
             })
             .then(() => {
